@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
-import { Rotate3D, Split, RefreshCw, Info } from "lucide-react";
+import { Rotate3D, Split, RefreshCw, Info, BookOpen } from "lucide-react";
+import PracticeQuiz from "./PracticeQuiz.jsx";
+import "./App.css";
 
 const parts = {
   DNA: { color: "#4f79d8", info: "DNA contains the gene whose base sequence provides the instructions for making a protein." },
@@ -182,16 +184,22 @@ function Scene({ explode, select, stage }) {
 
 export default function App(){
  const [selected,setSelected]=useState("DNA"); const [explode,setExplode]=useState(0); const [stage,setStage]=useState("Translation");
+ const [isQuizOpen,setIsQuizOpen]=useState(false); const [previousQuestionIds,setPreviousQuestionIds]=useState([]);
  const reset=()=>{setExplode(0);setSelected("DNA")};
  return <div className="min-h-screen bg-[#edf3f0] text-slate-800 font-sans flex flex-col">
   <header className="px-4 md:px-8 py-4 bg-[#193b43] text-white flex flex-wrap items-center justify-between gap-3 shadow-md">
    <div><div className="text-xs uppercase tracking-[.22em] text-teal-200">Year 10 Biology • Interactive Lab</div><h1 className="text-xl md:text-3xl font-semibold">Protein Synthesis in 3D</h1></div>
    <div className="flex gap-2"><button onClick={reset} className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-2 flex gap-2 items-center"><RefreshCw size={16}/> Reset</button></div>
   </header>
+  <nav aria-label="Protein synthesis activities" className="flex flex-wrap items-center gap-2 px-3 pt-3 md:px-5 max-w-[1500px] w-full mx-auto">
+   <button onClick={()=>setStage("Transcription")} className={`px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium ${stage==="Transcription"?"bg-[#193b43] text-white":"bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"}`}>Transcription</button>
+   <button onClick={()=>setStage("Translation")} className={`px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium ${stage==="Translation"?"bg-[#193b43] text-white":"bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"}`}>Translation</button>
+   <button aria-expanded={isQuizOpen} onClick={()=>setIsQuizOpen(true)} className="rounded-full bg-[#287f76] hover:bg-[#226d65] text-white font-semibold px-3 md:px-4 py-2 text-xs md:text-sm flex gap-2 items-center shadow-sm"><BookOpen size={17}/> Practice Quiz</button>
+  </nav>
+  {isQuizOpen && <PracticeQuiz onClose={()=>setIsQuizOpen(false)} previousQuestionIds={previousQuestionIds} onRoundStart={setPreviousQuestionIds}/>}
   <main className="flex-1 grid lg:grid-cols-[1fr_340px] gap-4 p-3 md:p-5 max-w-[1500px] w-full mx-auto">
    <section className="bg-[#f8faf8] rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col min-h-[62vh]">
     <div className="px-4 py-3 border-b flex flex-wrap gap-2 items-center justify-between bg-white">
-     <div className="flex gap-2"><button onClick={()=>setStage("Transcription")} className={`px-3 py-1.5 rounded-full text-sm ${stage==="Transcription"?"bg-[#193b43] text-white":"bg-slate-100"}`}>1. Transcription</button><button onClick={()=>setStage("Translation")} className={`px-3 py-1.5 rounded-full text-sm ${stage==="Translation"?"bg-[#193b43] text-white":"bg-slate-100"}`}>2. Translation</button></div>
      <span className="text-sm text-slate-500 flex items-center gap-1"><Rotate3D size={16}/> Drag to rotate • pinch/scroll to zoom</span>
     </div>
     <div className="relative flex-1 min-h-[480px] bg-gradient-to-b from-[#eef7f4] to-[#e6edef]">
@@ -205,6 +213,6 @@ export default function App(){
     <div className="bg-white rounded-2xl shadow-md border p-5"><h3 className="font-semibold mb-3">Structure key</h3><div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-1">{Object.keys(parts).filter(x=>!["Nucleus","Nuclear membrane"].includes(x)).map(name=><button key={name} onClick={()=>setSelected(name)} className="flex items-center gap-3 text-left hover:bg-slate-50 rounded-lg p-2 text-sm"><span className="w-3 h-3 rounded-full shrink-0" style={{background:parts[name].color}}/>{name}</button>)}</div></div>
     <div className="rounded-2xl bg-[#173d45] text-white p-5"><h3 className="font-semibold">How to explore</h3><ol className="text-sm mt-2 space-y-1 text-teal-50"><li>1. Drag the model to rotate it.</li><li>2. Tap a structure to identify it.</li><li>3. Move the slider to explode the model.</li><li>4. Compare transcription with translation.</li></ol></div>
    </aside>
-  </main>
+   </main>
  </div>
 }
